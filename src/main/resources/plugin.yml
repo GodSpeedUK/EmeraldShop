@@ -1,0 +1,8 @@
+name: EmeraldEconomy
+version: '${project.version}'
+main: me.dan.emeraldeco.EconomyPlugin
+softdepend:
+  - Essentials
+  - Vault
+depend: [ PluginAPI ]
+authors: [ Dan ]
