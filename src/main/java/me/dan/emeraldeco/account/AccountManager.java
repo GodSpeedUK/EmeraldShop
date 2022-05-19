@@ -6,6 +6,7 @@ import me.dan.emeraldeco.configuration.Config;
 import me.dan.pluginapi.file.gson.GsonUtil;
 import me.dan.pluginapi.manager.Manager;
 import org.bukkit.Bukkit;
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.File;
 import java.util.PriorityQueue;
@@ -65,6 +66,12 @@ public class AccountManager extends Manager<UUID, Account> {
         while (accountQueue.peek() != null) {
             accountQueue.poll().save();
         }
+    }
+
+    public void create(UUID uuid) {
+        Account account = new Account(uuid);
+        account.save();
+        insert(account.getUuid(), account);
     }
 
 }

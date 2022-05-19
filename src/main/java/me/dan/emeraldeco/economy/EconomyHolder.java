@@ -1,10 +1,17 @@
 package me.dan.emeraldeco.economy;
 
+import me.dan.emeraldeco.EconomyPlugin;
+import me.dan.emeraldeco.account.Account;
+import me.dan.pluginapi.math.NumberUtil;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class EconomyHolder implements Economy {
 
@@ -30,7 +37,7 @@ public class EconomyHolder implements Economy {
 
     @Override
     public String format(double amount) {
-        return null;
+        return NumberUtil.formatBigDecimal(BigDecimal.valueOf(amount));
     }
 
     @Override
@@ -45,102 +52,148 @@ public class EconomyHolder implements Economy {
 
     @Override
     public boolean hasAccount(String playerName) {
-        return false;
+        return hasAccount(Bukkit.getOfflinePlayer(playerName));
     }
 
     @Override
     public boolean hasAccount(OfflinePlayer player) {
-        return false;
+        if (!player.hasPlayedBefore()) {
+            return false;
+        }
+
+        UUID uuid = player.getUniqueId();
+
+        return EconomyPlugin.getInstance().getAccountManager().get(uuid) != null;
     }
 
     @Override
     public boolean hasAccount(String playerName, String worldName) {
-        return false;
+
+        return hasAccount(playerName);
     }
 
     @Override
     public boolean hasAccount(OfflinePlayer player, String worldName) {
-        return false;
+        return hasAccount(player);
     }
 
     @Override
     public double getBalance(String playerName) {
-        return 0;
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+        return getBalance(offlinePlayer);
     }
 
     @Override
-    public double getBalance(OfflinePlayer player) {
-        return 0;
+    public double getBalance(OfflinePlayer offlinePlayer) {
+        if (!offlinePlayer.hasPlayedBefore()) {
+            return 0;
+        }
+
+        UUID uuid = offlinePlayer.getUniqueId();
+
+        Account account = EconomyPlugin.getInstance().getAccountManager().get(uuid);
+
+        if (account == null) {
+            return 0;
+        }
+
+        return account.getBalance();
     }
 
     @Override
     public double getBalance(String playerName, String world) {
-        return 0;
+        return getBalance(playerName);
     }
 
     @Override
     public double getBalance(OfflinePlayer player, String world) {
-        return 0;
+        return getBalance(player);
     }
 
     @Override
     public boolean has(String playerName, double amount) {
-        return false;
+        return getBalance(playerName) >= amount;
     }
 
     @Override
     public boolean has(OfflinePlayer player, double amount) {
-        return false;
+        return getBalance(player) >= amount;
     }
 
     @Override
     public boolean has(String playerName, String worldName, double amount) {
-        return false;
+        return has(playerName, amount);
     }
 
     @Override
     public boolean has(OfflinePlayer player, String worldName, double amount) {
-        return false;
+        return has(player, amount);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        return null;
+
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+
+        return withdrawPlayer(offlinePlayer, amount);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-        return null;
+
+
+        Optional<Account> acc = getAccount(player);
+
+        if (!acc.isPresent()) {
+            return getFailure(amount);
+        }
+
+        Account account = acc.get();
+
+        account.setBalance(account.getBalance() - amount);
+
+        return getSuccess(amount, account.getBalance());
     }
 
     @Override
     public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
-        return null;
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+        return withdrawPlayer(offlinePlayer, amount);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer player, String worldName, double amount) {
-        return null;
+        return withdrawPlayer(player, amount);
     }
 
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
-        return null;
+        return depositPlayer(Bukkit.getOfflinePlayer(playerName), amount);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
-        return null;
+
+        Optional<Account> account = getAccount(player);
+
+        if (!account.isPresent()) {
+            return getFailure(amount);
+        }
+
+        Account acc = account.get();
+
+        acc.setBalance(acc.getBalance() + amount);
+        return getSuccess(amount, acc.getBalance());
     }
 
     @Override
     public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
-        return null;
+        return depositPlayer(playerName, amount);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, String worldName, double amount) {
-        return null;
+        return depositPlayer(player, amount);
     }
 
     @Override
@@ -205,7 +258,8 @@ public class EconomyHolder implements Economy {
 
     @Override
     public boolean createPlayerAccount(String playerName) {
-        return false;
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerName);
+        return createPlayerAccount(offlinePlayer);
     }
 
     @Override
@@ -215,11 +269,25 @@ public class EconomyHolder implements Economy {
 
     @Override
     public boolean createPlayerAccount(String playerName, String worldName) {
-        return false;
+        return createPlayerAccount(playerName);
     }
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer player, String worldName) {
-        return false;
+        return createPlayerAccount(player);
     }
+
+    private EconomyResponse getFailure(double amount) {
+        return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No account exists!");
+    }
+
+    private EconomyResponse getSuccess(double amount, double balance) {
+        return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.SUCCESS, null);
+    }
+
+    private Optional<Account> getAccount(OfflinePlayer offlinePlayer) {
+        Account account = EconomyPlugin.getInstance().getAccountManager().get(offlinePlayer.getUniqueId());
+        return Optional.ofNullable(account);
+    }
+
 }

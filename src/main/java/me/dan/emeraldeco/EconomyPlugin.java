@@ -3,6 +3,7 @@ package me.dan.emeraldeco;
 import lombok.Getter;
 import me.dan.emeraldeco.account.AccountManager;
 import me.dan.emeraldeco.configuration.Messages;
+import me.dan.emeraldeco.listener.PlayerJoinListener;
 import me.dan.pluginapi.configuration.Configuration;
 import me.dan.pluginapi.file.YamlFile;
 import me.dan.pluginapi.plugin.CustomPlugin;
@@ -34,6 +35,7 @@ public final class EconomyPlugin extends CustomPlugin {
 
 
         this.accountManager = new AccountManager();
+        registerEvents(new PlayerJoinListener());
 
     }
 
