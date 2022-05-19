@@ -42,12 +42,12 @@ public class EconomyHolder implements Economy {
 
     @Override
     public String currencyNamePlural() {
-        return null;
+        return "Emeralds";
     }
 
     @Override
     public String currencyNameSingular() {
-        return null;
+        return "Emerald";
     }
 
     @Override
