@@ -2,7 +2,10 @@ package me.dan.emeraldeco;
 
 import lombok.Getter;
 import me.dan.emeraldeco.account.AccountManager;
-import me.dan.emeraldeco.configuration.Messages;
+import me.dan.emeraldeco.command.EconomyCommand;
+import me.dan.emeraldeco.command.PayCommand;
+import me.dan.emeraldeco.configuration.Message;
+import me.dan.emeraldeco.economy.EconomyHolder;
 import me.dan.emeraldeco.listener.PlayerJoinListener;
 import me.dan.pluginapi.configuration.Configuration;
 import me.dan.pluginapi.file.YamlFile;
@@ -11,6 +14,7 @@ import me.dan.pluginapi.util.Text;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 
 @Getter
 public final class EconomyPlugin extends CustomPlugin {
@@ -26,7 +30,7 @@ public final class EconomyPlugin extends CustomPlugin {
     @Override
     public void enable() {
         instance = this;
-        Configuration.loadConfig(new YamlFile("messages", this.getDataFolder().getAbsolutePath(), null, this), Messages.values());
+        Configuration.loadConfig(new YamlFile("messages", this.getDataFolder().getAbsolutePath(), null, this), Message.values());
         if (Bukkit.getServer().getPluginManager().getPlugin("Vault") == null) {
             sendConsoleMessage("Could not find vault! Disabling...");
             Bukkit.getServer().getPluginManager().disablePlugin(this);
@@ -35,8 +39,12 @@ public final class EconomyPlugin extends CustomPlugin {
 
 
         this.accountManager = new AccountManager();
-        registerEvents(new PlayerJoinListener());
+        getServer().getServicesManager().register(Economy.class, new EconomyHolder(), this, ServicePriority.Highest);
 
+        registerEvents(new PlayerJoinListener());
+        registerCommands(new EconomyCommand(), new PayCommand());
+
+        setupEconomy();
     }
 
     @Override
@@ -54,7 +62,7 @@ public final class EconomyPlugin extends CustomPlugin {
     }
 
     public void sendConsoleMessage(String message) {
-        Bukkit.getConsoleSender().sendMessage(Text.c(Messages.PREFIX.getString() + message));
+        Bukkit.getConsoleSender().sendMessage(Text.c(Message.PREFIX.getString() + message));
     }
 
 }

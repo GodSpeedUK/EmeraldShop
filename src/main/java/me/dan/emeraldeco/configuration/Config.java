@@ -6,7 +6,9 @@ import me.dan.pluginapi.configuration.Configuration;
 
 public enum Config implements Configuration {
 
-    SAVE_INTERVAL("save-interval", 300);
+    SAVE_INTERVAL("save-interval", 300),
+    SERVER_NAME("server-name", "ServerName"),
+    EXCHANGE_RATE("exchange-rate", 1);
 
     @Getter
     private final String path;

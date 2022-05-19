@@ -1,12 +1,10 @@
 package me.dan.emeraldeco.account;
 
-import lombok.Getter;
 import me.dan.emeraldeco.EconomyPlugin;
 import me.dan.emeraldeco.configuration.Config;
 import me.dan.pluginapi.file.gson.GsonUtil;
 import me.dan.pluginapi.manager.Manager;
 import org.bukkit.Bukkit;
-import org.checkerframework.checker.units.qual.A;
 
 import java.io.File;
 import java.util.PriorityQueue;
