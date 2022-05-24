@@ -14,6 +14,7 @@ public class PlayerJoinListener implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Account account = EconomyPlugin.getInstance().getAccountManager().get(e.getPlayer().getUniqueId());
         if (account == null) {
+            EconomyPlugin.getInstance().sendConsoleMessage("No account detected for " + e.getPlayer().getName() + "! Creating...");
             EconomyPlugin.getInstance().getAccountManager().create(e.getPlayer().getUniqueId());
         }
     }

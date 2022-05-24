@@ -7,19 +7,17 @@ import me.dan.pluginapi.manager.Manager;
 import org.bukkit.Bukkit;
 
 import java.io.File;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
 
 public class AccountManager extends Manager<UUID, Account> {
 
-    private final Queue<Account> accountQueue;
+    private final List<Account> accountQueue;
 
     private static final File DIRECTORY = new File(EconomyPlugin.getInstance().getDataFolder(), "accounts");
 
     public AccountManager() {
         super();
-        this.accountQueue = new PriorityQueue<>();
+        this.accountQueue = new ArrayList<>();
         long duration = Config.SAVE_INTERVAL.getInt() * 20L;
         Bukkit.getScheduler().scheduleSyncRepeatingTask(EconomyPlugin.getInstance(), this::emptyQueue, duration, duration);
     }
@@ -61,15 +59,19 @@ public class AccountManager extends Manager<UUID, Account> {
     }
 
     public void emptyQueue() {
-        while (accountQueue.peek() != null) {
-            accountQueue.poll().save();
+        for(Account account: accountQueue){
+            account.save();
         }
+
+        accountQueue.clear();
+
     }
 
     public void create(UUID uuid) {
         Account account = new Account(uuid);
         account.save();
         insert(account.getUuid(), account);
+        EconomyPlugin.getInstance().sendConsoleMessage("Account created!");
     }
 
 }

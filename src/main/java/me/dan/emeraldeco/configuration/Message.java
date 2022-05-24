@@ -19,13 +19,14 @@ public enum Message implements Configuration, me.dan.pluginapi.message.Message {
     ECONOMY_INFORMATION("economy-information", Arrays.asList(
             "&8&l=========================",
             " ",
-            " &aServer Name &8- &2{server_name}",
-            " &aAccounts &8- &2{number_of_accounts}",
-            " &aInterest Rates &8- &2{interest_rates}",
-            " &aExchange Rate &8- &2{exchange_rate}:1",
+            " &aServer Name &8- &3{server}",
+            " &aAccounts &8- &3{accounts}",
+            " &aInterest Rates &8- &3{interest_rate}%",
+            " &aExchange Rate &8- &3{exchange_rate}:1",
             " ",
             "&8&l========================="
-    ));
+    )),
+    BALANCE("balance", "{prefix}Your Balance: &b{balance}");
 
     @Getter
     private final String path;

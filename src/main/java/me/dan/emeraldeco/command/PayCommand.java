@@ -48,22 +48,22 @@ public class PayCommand extends AbstractCommand {
 
         String target = commandContext.getArgs()[0];
 
-        if (!EconomyPlugin.getInstance().getEcon().hasAccount(player)) {
+        if (!EconomyPlugin.getInstance().getEconomyHolder().hasAccount(player)) {
             Message.PLAYER_NOT_FOUND.send(commandContext.getCommandSender(), new Placeholder("{player}", target));
             return;
         }
 
-        if (EconomyPlugin.getInstance().getEcon().getBalance(player) < amount) {
+        if (EconomyPlugin.getInstance().getEconomyHolder().getBalance(player) < amount) {
             Message.NOT_ENOUGH_MONEY.send(player);
             return;
         }
 
         OfflinePlayer targetP = Bukkit.getOfflinePlayer(target);
 
-        String moneyFormat = EconomyPlugin.getInstance().getEcon().format(amount);
+        String moneyFormat = EconomyPlugin.getInstance().getEconomyHolder().format(amount);
 
-        EconomyPlugin.getInstance().getEcon().withdrawPlayer(player, amount);
-        EconomyPlugin.getInstance().getEcon().depositPlayer(targetP, amount);
+        EconomyPlugin.getInstance().getEconomyHolder().withdrawPlayer(player, amount);
+        EconomyPlugin.getInstance().getEconomyHolder().depositPlayer(targetP, amount);
 
         Message.PAY_SENT.send(player, new Placeholder("{player}", targetP.getName()), new Placeholder("{amount}", moneyFormat));
         if (targetP.isOnline()) {
