@@ -22,7 +22,6 @@ public enum Message implements Configuration, me.dan.pluginapi.message.Message {
             " &aServer Name &8- &3{server}",
             " &aAccounts &8- &3{accounts}",
             " &aInterest Rates &8- &3{interest_rate}%",
-            " &aExchange Rate &8- &3{exchange_rate}:1",
             " ",
             "&8&l========================="
     )),

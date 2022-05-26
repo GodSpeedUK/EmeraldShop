@@ -4,5 +4,6 @@ main: me.dan.emeraldeco.EconomyPlugin
 softdepend:
   - Essentials
   - Vault
+  - PlaceholderAPI
 depend: [ PluginAPI ]
 authors: [ Dan ]

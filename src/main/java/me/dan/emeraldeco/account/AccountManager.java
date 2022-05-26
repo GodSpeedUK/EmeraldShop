@@ -1,13 +1,21 @@
 package me.dan.emeraldeco.account;
 
 import me.dan.emeraldeco.EconomyPlugin;
+import me.dan.emeraldeco.account.interest.Interest;
 import me.dan.emeraldeco.configuration.Config;
 import me.dan.pluginapi.file.gson.GsonUtil;
 import me.dan.pluginapi.manager.Manager;
 import org.bukkit.Bukkit;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class AccountManager extends Manager<UUID, Account> {
 
@@ -19,7 +27,18 @@ public class AccountManager extends Manager<UUID, Account> {
         super();
         this.accountQueue = new ArrayList<>();
         long duration = Config.SAVE_INTERVAL.getInt() * 20L;
+        Interest interest = Config.INTEREST.getInterest();
         Bukkit.getScheduler().scheduleSyncRepeatingTask(EconomyPlugin.getInstance(), this::emptyQueue, duration, duration);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime then = LocalDateTime.now();
+        double interestMultiplier = (interest.getRate() / 100) + 1;
+        then = then.with(TemporalAdjusters.nextOrSame(interest.getDayOfWeek())).withHour(interest.getHour());
+        ScheduledExecutorService scheduledActivity = Executors.newScheduledThreadPool(1);
+        scheduledActivity.scheduleAtFixedRate(() -> {
+            for (Account account : getAll()) {
+                account.setBalance(account.getBalance() * interestMultiplier);
+            }
+        }, Duration.between(now, then).getSeconds(), TimeUnit.DAYS.toSeconds(7), TimeUnit.SECONDS);
     }
 
     @Override
@@ -59,7 +78,7 @@ public class AccountManager extends Manager<UUID, Account> {
     }
 
     public void emptyQueue() {
-        for(Account account: accountQueue){
+        for (Account account : accountQueue) {
             account.save();
         }
 
